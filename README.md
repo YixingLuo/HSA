@@ -1,4 +1,4 @@
-# Hierarchical_Safety_Assessment
+# Hierarchical Safety Assessment (HSA)
 Autonomous Driving Systems (ADSs) are complex systems that must satisfy multiple safety requirements. Usually, the trading-offs in the decision-making process are configurable; different configuration options can affect driving behaviors, satisfying or violating requirements at different degrees. Therefore, it is highly important to know whether a configuration can guarantee a safe drive or not Hierarchical Safety Assessment (HSA) is proposed to quantitatively analyze violation severity of safety requirements and distinguish safer ADS configurations based on the requirements violations comparison done in a hierarchical way by following requirements importance.
 
 Specifically, HSA helps you to:
