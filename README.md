@@ -15,7 +15,7 @@ In the following, we describe the structure of the repository.
 This file contains the evaluation functions of all seven requirements descripted in the paper, i.e., Vehicle Stability, Safe Distance, Compliance, and Smoothness, and the proof of the transitivity of Requirements Violation Comparison.
 
 ## Codes
-This folder contains the code of the baseline approach *Conservative Comparison* and *Hierarchical Safety Assessment* (HSA) used in experimental evaluations. However, as the system under study is provided by our industrial partner, for confidentiality reasons we cannot share the code of the autonomous driving system we used in the experiments.
+This folder contains the code of the baseline approach *Conservative Comparison* and *Hierarchical Safety Assessment* (HSA) used in experimental evaluations. However, as the system under study is provided by our industrial partner, for confidentiality reasons we cannot share the code of the autonomous driving system we used in the experiments. Still for confidentiality reasons, we cannot provide the ADS scenarios used as input of the approach.
 
 ## Results_RVA
 This folder provides the normalized RVA results of the seven requirements listed in "Appendix.pdf" in 10000 test scenarios under different configurations of the ADS provided by our industry partner in six traffic situations.
@@ -26,7 +26,7 @@ This folder contains all comparison results of 60 modified ADS configurations an
 ## Results_HSA
 This folder contains all comparison results of 60 modified ADS configurations and the original configuration obtained using the HSA approach.
 
-## Usefulness_Of_HSA
+## Analysis_HSA_results
 This folder contains the heat maps showing the Spearman correlation between configuration options and requirements violation severity in six traffic situations (see RQ3 in the paper).
 
 
