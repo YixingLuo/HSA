@@ -37,9 +37,11 @@ def Comp2ADSbySeverity(ADS1, ADS2):
     
     impl_sv1 = {}
     impl_sv2 = {}
-    
-    f = open(r"E:\UAV\mazda_PP\Hierarchical-Safety-Assessment\Results_RVA\Requirements_Level_Pattern.txt",encoding = "utf-8")
-    f2 = open(r"E:\UAV\mazda_PP\Hierarchical-Safety-Assessment\Results_RVA\N_req.txt",encoding = "utf-8")
+
+    filename = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA/Requirements_Level_Pattern.txt'
+    f = open(filename, encoding = "utf-8")
+    filename = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA/N_req.txt'
+    f2 = open(filename, encoding = "utf-8")
     
     N_req = eval(f2.read())
     Pattern = eval(f.read())
@@ -141,10 +143,13 @@ def SortADS(fname, compfolder):
         df.loc[i, 'rank'] = rank_now
         
     # * represent an address
-    result_folder = '*/Hierarchical-Safety-Assessment/test_result/rank_list/'
-    writer2 = pd.ExcelWriter(result_folder + 'Rankindlist_' + fname + '.xlsx',engine = 'xlsxwriter')
-    df.to_excel(writer2,sheet_name = 'Sheet1')
-    writer2.save()
+    # result_folder = '*/Hierarchical-Safety-Assessment/test_result/rank_list/'
+    result_folder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA'
+    if not os.path.exists(result_folder):
+        os.mkdir(result_folder)
+    writer = pd.ExcelWriter(result_folder + '/RankindList_' + fname + '.xlsx',engine = 'xlsxwriter')
+    df.to_excel(writer,sheet_name = 'Sheet1')
+    writer.save()
     
     # writer3 = pd.ExcelWriter(result_folder + fname + '_Severity_Compare_process_record.xlsx',engine = 'xlsxwriter')
     # df_compare_record.to_excel(writer3,sheet_name = 'Sheet1')
@@ -157,7 +162,8 @@ def SortADS(fname, compfolder):
 if __name__ == '__main__':
     # datafolder = 'E:/UAV/mazda_PP/Hierarchical-Safety-Assessment/TESTDATA'
     # folder_list = ['BlindIntersection']
-    datafolder = '*/Hierarchical-Safety-Assessment/Results_RVA'
+    datafolder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA'
+    # print(datafolder)
     folder_list = os.listdir(datafolder)
     folder_list.remove('README.md')
     folder_list.remove('Requirements_Level_Pattern.txt')

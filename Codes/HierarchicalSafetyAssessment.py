@@ -104,9 +104,15 @@ def Comp2ADSbySeverity(sv1,sv2, name1,name2):
     impl_sv2 = {}
     # N_req = 10
     # Pattern = {0:(7,), 1:(2,), 2:(3,8), 3:(4,5,6)}
-    f = open(r"E:\UAV\mazda_PP\Hierarchical-Safety-Assessment\Results_RVA\Requirements_Level_Pattern.txt",encoding = "utf-8")
-    f2 = open(r"E:\UAV\mazda_PP\Hierarchical-Safety-Assessment\Results_RVA\N_req.txt",encoding = "utf-8")
-    
+
+    # f = open(r"E:\UAV\mazda_PP\Hierarchical-Safety-Assessment\Results_RVA\Requirements_Level_Pattern.txt",encoding = "utf-8")
+    # f2 = open(r"E:\UAV\mazda_PP\Hierarchical-Safety-Assessment\Results_RVA\N_req.txt",encoding = "utf-8")
+
+    filename = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA/Requirements_Level_Pattern.txt'
+    f = open(filename, encoding = "utf-8")
+    filename = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA/N_req.txt'
+    f2 = open(filename, encoding = "utf-8")
+
     N_req = eval(f2.read())
     Pattern = eval(f.read())
     # print(name1,name2)
@@ -195,7 +201,15 @@ def recordCompareResult(f, folder):
     for i in  range(len(config_list) - 1):
         for j in range((i+1),len(config_list)):
             Comp2ADSbySeverity(df_list[config_list[i]]['Severity'], df_list[config_list[j]]['Severity'],config_list[i],config_list[j] )
-    writer = pd.ExcelWriter('*/Hierarchical-Safety-Assessment/test_result/all_compare/RequirementsViolationComparison_' + f + '.xlsx',engine = 'xlsxwriter')
+
+    # writer = pd.ExcelWriter('*/Hierarchical-Safety-Assessment/test_result/all_compare/RequirementsViolationComparison_' + f + '.xlsx',engine = 'xlsxwriter')
+
+    result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_RVA'
+    if not os.path.exists(result_folder):
+        os.mkdir(result_folder)
+
+    writer = pd.ExcelWriter(result_folder + '/AllComrarison_' + f+ '.xlsx',engine = 'xlsxwriter')
+
     df_compare_record.to_excel(writer,sheet_name = 'Sheet1')
     writer.save()
     
@@ -208,7 +222,8 @@ if __name__ == '__main__':
     #                 'CarBehindAndInFront_Datalog_2021_12_26_21_25']
     # folder_list.remove('LeftAndRight_Datalog_2021_12_26_21_26')
     
-    datafolder = '*/Hierarchical-Safety-Assessment/Results_RVA'
+    # datafolder = '*/Hierarchical-Safety-Assessment/Results_RVA'
+    datafolder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA'
     folder_list = os.listdir(datafolder)
     folder_list.remove('README.md')
     folder_list.remove('Requirements_Level_Pattern.txt')
