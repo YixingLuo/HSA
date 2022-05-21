@@ -204,7 +204,7 @@ def recordCompareResult(f, folder):
 
     # writer = pd.ExcelWriter('*/Hierarchical-Safety-Assessment/test_result/all_compare/RequirementsViolationComparison_' + f + '.xlsx',engine = 'xlsxwriter')
 
-    result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_RVA'
+    result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_HSA'
     if not os.path.exists(result_folder):
         os.mkdir(result_folder)
 

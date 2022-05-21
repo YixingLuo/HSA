@@ -144,7 +144,7 @@ def SortADS(fname, compfolder):
         
     # * represent an address
     # result_folder = '*/Hierarchical-Safety-Assessment/test_result/rank_list/'
-    result_folder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA'
+    result_folder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_HSA'
     if not os.path.exists(result_folder):
         os.mkdir(result_folder)
     writer = pd.ExcelWriter(result_folder + '/RankindList_' + fname + '.xlsx',engine = 'xlsxwriter')
