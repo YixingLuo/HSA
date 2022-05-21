@@ -53,4 +53,4 @@ The artifact of HSA is available in a GitHub repo [HSA], and on the Zenodo [DOI]
 
 [HSA]: https://github.com/YixingLuo/Hierarchical-Safety-Assessment
 
-[DOI]: https://doi.org/10.5281/zenodo.6562535
+[DOI]: https://doi.org/10.5281/zenodo.6568917
