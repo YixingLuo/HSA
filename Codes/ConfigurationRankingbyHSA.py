@@ -24,14 +24,14 @@ def getDF(folder):
 # #############=====Additional remarks====##############################
 # note that we make the output of Comp2ADSbySeverity like this (only -1, 0, 1)
 # because this function will be later used in "cmp_to_key" (a function provided by functools module)
-# and this was function was introduced for the usage of python Sort(), 
+# and this function was introduced for the usage of python Sort(), 
 # for more information about this cmp_to_key , see:https://docs.python.org/3/library/functools.html
-# in short, this return-value-design make Sort() put the "worse" ADS configuration in the front of 
-# the list than the better ones
+# In short, this return-value-design make Sort() put the "worse" ADS configuration in the front of 
+# the sorted list than the better ones
 # also, we record other useful information in df_compare_record (this is a global variable)
 # useful information like K, Ms, Dis, etc, you can see more detailed description in comments
-# in HierarchicalSafetyAssessment.py.
-# in short, if Dis == 0, means Comp2ADSbySeverity cannot distinguish ADS1 and ADS2
+# in HierarchicalSafetyAssessment.py. The most important information here is that 
+# if Dis == 0, means Comp2ADSbySeverity cannot distinguish ADS1 and ADS2
 def Comp2ADSbySeverity(ADS1, ADS2):
     global df_compare_record
     global Compare_count
@@ -115,9 +115,11 @@ def Comp2ADSbySeverity(ADS1, ADS2):
 # and record the compare result in excels
 # #############=====Additional remarks====##############################
 # as the comments of function Comp2ADSbySeverity, the Sort do returns a sorted list of ADS
-# from the worst to the best, but there are ADSs that are "the same", so if we want to get a 
+# from the worst to the best (also our final rank list should be best to worst, 
+# that's why we reverse the list returned by Sort())
+# but there are ADSs that are "the same", so if we want to get a 
 # specific rank value for each ADS we have to know which ADSs are the same, and since cmp_to_key
-# cannot carry this kind of information, so we need to query this in df_compare_record
+# cannot carry this kind of information, so we need to query for specific records in df_compare_record
 def SortADS(fname, compfolder):
     global df_compare_record
     pd.set_option('display.max_columns',None)
@@ -141,17 +143,19 @@ def SortADS(fname, compfolder):
     for i in range(1,N_ADS):
         # query_stc construct a sql_like query, it searches the df_compare_record for the record that satisfied
         # A == ADS_list[i-1] && B == ADS_list[i] or A == ADS_list[i] && B == ADS_list[i]
-        # because we do not know the order in which 2 ADS are compared
+        # because we do not know the actual order in which 2 ADS are compared
         query_stc = 'A == ' + "\'" + df.loc[i-1,'Scenario'] + "\'" + ' and B == ' + "\'" + df.loc[i,'Scenario']  + "\'"
         l = df_compare_record.query(query_stc)
         if l.empty == True:
             query_stc = 'A == ' + "\'" + df.loc[i,'Scenario'] + "\'" + ' and B == ' + "\'" + df.loc[i-1,'Scenario']  + "\'"
             l = df_compare_record.query(query_stc)
         
-        # by the query about we get the record about this 2 ADS in df_compare_record
+        # by the query above we get the record about this 2 ADS in df_compare_record.
+        # if 'Dis' == 0 it means this 2 ADS we queried are "the same", should be ranked the same
         # we only need to query each 2 adjacent ADS in the sorted list, 
         # because the "same" relation has transitivity, 
-        # for example, if ADS1==ADS2, and ADS2==ADS3 and ADS3!=ADS4, 
+        # for example, in a sorted list [ADS1,ADS2,ADS3,ADS4]
+        # if ADS1==ADS2, and ADS2==ADS3 and ADS3!=ADS4, 
         # than ADS1,ADS2,ADS3 will all have the same rank value 1, and ADS4's rank value will be 4
         
         l_dis = l.iloc[0]['Dis']
