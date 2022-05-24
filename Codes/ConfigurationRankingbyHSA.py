@@ -117,14 +117,11 @@ def SortADS(fname, compfolder):
     df = pd.DataFrame(columns=['Scenario','rank'])
     ADS_list.reverse()
     df['Scenario'] = ADS_list
-    
-    # print(df)
-    # print(df_compare_record)
+
     
     N_ADS = len(ADS_list)
     rank_count = 1
     rank_now = 1
-    # df['rank'][0] = rank_now
     df.loc[0, 'rank'] = rank_now
 
     for i in range(1,N_ADS):
@@ -141,29 +138,23 @@ def SortADS(fname, compfolder):
             rank_count += 1
             rank_now = rank_count
         df.loc[i, 'rank'] = rank_now
-        
-    # * represent an address
-    # result_folder = '*/Hierarchical-Safety-Assessment/test_result/rank_list/'
+
     result_folder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_HSA'
     if not os.path.exists(result_folder):
         os.mkdir(result_folder)
     writer = pd.ExcelWriter(result_folder + '/RankindList_' + fname + '.xlsx',engine = 'xlsxwriter')
     df.to_excel(writer,sheet_name = 'Sheet1')
     writer.save()
-    
-    # writer3 = pd.ExcelWriter(result_folder + fname + '_Severity_Compare_process_record.xlsx',engine = 'xlsxwriter')
-    # df_compare_record.to_excel(writer3,sheet_name = 'Sheet1')
-    # writer3.save()
+
 
     global Compare_count
   
     
 
 if __name__ == '__main__':
-    # datafolder = 'E:/UAV/mazda_PP/Hierarchical-Safety-Assessment/TESTDATA'
-    # folder_list = ['BlindIntersection']
+
     datafolder = os.path.abspath(os.path.join(os.getcwd(),"..")) + '/Results_RVA'
-    # print(datafolder)
+
     folder_list = os.listdir(datafolder)
     folder_list.remove('README.md')
     folder_list.remove('Requirements_Level_Pattern.txt')
