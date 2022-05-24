@@ -107,7 +107,7 @@ if __name__ == '__main__':
         print("time_used:", used_time/count, count, used_time)
 
 
-        result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_ConservativeComparison/Test' ## results save folder
+        result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_ConservativeComparison' ## results save folder
         if not os.path.exists(result_folder):
             os.mkdir(result_folder)
 
@@ -120,62 +120,3 @@ if __name__ == '__main__':
         df_compare_record.to_excel(writer, sheet_name='Sheet1')
         writer.save()
         df_compare_record = df_compare_record.drop(index=df_compare_record.index)
-
-
-        # ## To calculate the distinguishable rate of ConservativeComparison under different percentages of considered test scenarios
-        # # alpha_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-        # alpha = 1 ## Percentage of considered test scenarios
-        #
-        # comparison_list = np.loadtxt(result_name)
-        # comparison = np.array(comparison_list)
-        #
-        # ## save comparison results of ConservativeComparison to files
-        # comparison_times = []
-        # for i in range(1, 61):
-        #     comparison_times.append(61 - i)
-        # axis = []
-        # for i in range(1, 1831):
-        #     compared = 0
-        #     for j in range(len(comparison_times)):
-        #         compared += comparison_times[j]
-        #         if i > compared:
-        #             pass
-        #         else:
-        #             pre_index = j + 1
-        #             next_index = i - (compared - comparison_times[j]) + pre_index
-        #             axis.append([pre_index, next_index])
-        #             break
-        #
-        # for i in range(comparison.shape[0]):
-        #     current_comparison = comparison[i][0:num_scenarios]
-        #
-        #     Configuration_A = configuration_list[axis[i][0] - 1] ## get the previous configuration
-        #     Configuration_B = configuration_list[axis[i][1] - 1] ## get the next configuration
-        #
-        #     if np.sum(current_comparison == 0) >= alpha * num_scenarios:
-        #         df_compare_record = df_compare_record.append(
-        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "A=B"},
-        #             ignore_index=True)
-        #     elif (np.sum(current_comparison == 1) + np.sum(current_comparison == 0)) >= alpha * num_scenarios:
-        #         df_compare_record = df_compare_record.append(
-        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "A<B"},
-        #             ignore_index=True)
-        #     elif (np.sum(current_comparison == 2) + np.sum(current_comparison == 0)) >= alpha * num_scenarios:
-        #         df_compare_record = df_compare_record.append(
-        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "A>B"},
-        #             ignore_index=True)
-        #     else:
-        #         df_compare_record = df_compare_record.append(
-        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "incomparable"},
-        #             ignore_index=True)
-        #
-        #
-        # result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_ConservativeComparison/Test'
-        # if not os.path.exists(result_folder):
-        #     os.mkdir(result_folder)
-        #
-        # writer = pd.ExcelWriter(result_folder + '/ConservativeComparison_' + Traffic + '.xlsx', engine='xlsxwriter')
-        #
-        # df_compare_record.to_excel(writer, sheet_name='Sheet1')
-        # writer.save()
-        # df_compare_record = df_compare_record.drop(index=df_compare_record.index)
