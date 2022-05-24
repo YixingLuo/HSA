@@ -1,36 +1,44 @@
 import numpy as np
 import os
 from time import time
+import pandas as pd
 
+df_compare_record = pd.DataFrame(columns=['Configuration A', 'Configuration B', 'Comparison Results'])
 
-def get_comparison_under_scenario (violation_severity_1, violation_severity_2):
+# This function(get_comparison_under_scenario) is designed to calculate comparison results of two configurations through ConservativeComparison under a test scenario
+# input parameters: violation_severity_A, violation_severity_B
+# output: the comparison results of given test scenario
+def get_comparison_under_scenario (violation_severity_A, violation_severity_B):
     comparison_severity = []
-    for i in range(len(violation_severity_1)):
-        if violation_severity_1[i] > violation_severity_2[i]:
+    ## compare the violation severity of each requirement for configuration A and configuration B
+    for i in range(len(violation_severity_A)):
+        if violation_severity_A[i] > violation_severity_B[i]:
             comparison_severity.append(1)
-        elif violation_severity_1[i] < violation_severity_2[i]:
+        elif violation_severity_A[i] < violation_severity_B[i]:
             comparison_severity.append(2)
         else:
             comparison_severity.append(0)
 
-    if comparison_severity.count(0) == len(violation_severity_1): ## tie
+    if comparison_severity.count(0) == len(violation_severity_A): ## Configuration_A ties with Configuration_B
         return 0
-    elif comparison_severity.count(2) == 0: ## configuration_2 is safer
+    elif comparison_severity.count(2) == 0: ## Configuration_B is safer
         return 1
-    elif comparison_severity.count(1) == 0: ## configuration_1 is safer
+    elif comparison_severity.count(1) == 0: ## Configuration_A is safer
         return 2
-    else: ## cannot compare
+    else: ## Configuration_A and Configuration_B cannot be compared under this test scenario
         return -1
 
-def get_comparison_under_testsuite(RVA_results_1, RVA_results_2, num):
+# This function(get_comparison_under_testsuite) is designed to calculate comparison results of two configurations through ConservativeComparison under the whole test suite
+# input parameters: RVA_results_A, RVA_results_B, scenario_number
+# output: the list of comparison results of the whole test suite
+def get_comparison_under_testsuite(RVA_results_A, RVA_results_B, scenario_number):
     compare_list = []
-    fileList_orig = np.loadtxt(RVA_results_1 + "/Requirements_Violation_Severity.txt")
-    fileList_mod = np.loadtxt(RVA_results_2 + "/Requirements_Violation_Severity.txt")
-    scenario_number = num
+    fileList_orig = np.loadtxt(RVA_results_A + "/Requirements_Violation_Severity.txt") ## Results of requirements violation severity of Configuration_A under the whole test suite
+    fileList_mod = np.loadtxt(RVA_results_B + "/Requirements_Violation_Severity.txt")  ## Results of requirements violation severity of Configuration_B under the whole test suite
     for i in range(scenario_number):
         orig_result = fileList_orig[i]
         mod_result = fileList_mod[i]
-        comparison_severity = get_comparison_under_scenario(orig_result, mod_result)
+        comparison_severity = get_comparison_under_scenario(orig_result, mod_result) ## get comparison result under a specific test scenario
         compare_list.append(comparison_severity)
 
     return compare_list
@@ -41,7 +49,7 @@ if __name__ == '__main__':
                   "CloseToCrash",
                   "LeftAndRight",
                   "BlindIntersection",
-                  "RightTurn_Datalog",
+                  "RightTurn",
                   "CarBehindAndInFront"
                   ]
 
@@ -52,9 +60,12 @@ if __name__ == '__main__':
         configuration_list = os.listdir(RVA_result)
         configuration_list.sort()
 
-        num_scenarios = 10000
-        used_time = 0
+        num_scenarios = 10000 ## number of test scenarios in the test suite
+        used_time = 0 ## time used for the total comparison
+        # alpha_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        alpha = 1 ## Percentage of considered test scenarios
 
+        ## To calculate the distinguishable rate of ConservativeComparison under different percentages of considered test scenarios
         comparison_all = []
         count = 0
         for pre in range(len(configuration_list)):
@@ -69,57 +80,102 @@ if __name__ == '__main__':
                 count += 1
                 if count % 10 == 0:
                     print('finish:', count, "/ 1830 ")
+                comparison = np.array(comparison)
+                # print(np.array(comparison).shape, np.sum(np.array(comparison) == 0), np.sum(np.array(comparison) == 1), np.sum(np.array(comparison) == 2))
+                if (np.sum(comparison == 1) + np.sum(comparison == 0)) >= alpha * num_scenarios and np.sum(comparison == 1) > 0:
+                    df_compare_record = df_compare_record.append(
+                        {'Configuration A': configuration_list[pre], 'Configuration B': configuration_list[next],
+                         'Comparison Results': "A=B"},
+                        ignore_index=True)
+                elif (np.sum(comparison == 2) + np.sum(comparison == 0)) >= alpha * num_scenarios and np.sum(comparison == 2) > 0:
+                    df_compare_record = df_compare_record.append(
+                        {'Configuration A': configuration_list[pre], 'Configuration B': configuration_list[next],
+                         'Comparison Results': "A<B"},
+                        ignore_index=True)
+                elif np.sum(comparison == 0) >= alpha * num_scenarios:
+                    df_compare_record = df_compare_record.append(
+                        {'Configuration A': configuration_list[pre], 'Configuration B': configuration_list[next],
+                         'Comparison Results': "A>B"},
+                        ignore_index=True)
+                else:
+                    df_compare_record = df_compare_record.append(
+                        {'Configuration A': configuration_list[pre], 'Configuration B': configuration_list[next],
+                         'Comparison Results': "incomparable"},
+                        ignore_index=True)
+
 
         print("time_used:", used_time/count, count, used_time)
-        result_name = os.getcwd() + "/ConservativeComparison_" + Traffic + ".txt"
+
+
+        result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_ConservativeComparison/Test' ## results save folder
+        if not os.path.exists(result_folder):
+            os.mkdir(result_folder)
+
+        ## save the comparison results under all test scenarios
+        result_name = result_folder + "/ConservativeComparison_All_" + Traffic + ".txt"
         np.savetxt(result_name, comparison_all, fmt="%d", delimiter=" ")
 
-
-        ## Distinguishable Rate
-        ## Percentage of considered test scenarios
-        alpha_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-
-        comparison_list = np.loadtxt(result_name)
-        comparison = np.array(comparison_list)
-
-        for alpha in alpha_list:
-            comparable_rate_list = []
-            tie_rate_list = []
-            not_equal_rate_list = []
-            incomparable_rate_list = []
-
-            count_tie = 0
-            count_better = 0
-            count_worse = 0
-            incomparable = 0
-            for i in range(comparison.shape[0]):
-                current_comparison = comparison[i][0:num_scenarios]
-                if (np.sum(current_comparison == 1) + np.sum(
-                        current_comparison == 0)) >= alpha * num_scenarios and np.sum(current_comparison == 1) > 0:
-                    count_worse += 1
-                elif (np.sum(current_comparison == 2) + np.sum(
-                        current_comparison == 0)) >= alpha * num_scenarios and np.sum(current_comparison == 2) > 0:
-                    count_better += 1
-                elif np.sum(current_comparison == 0) >= alpha * num_scenarios:
-                    count_tie += 1
-                else:
-                    incomparable += 1
-
-            comparable_rate = 1 - incomparable / comparison.shape[0]
-            tie_rate = count_tie / comparison.shape[0]
-            not_equal_rate = (count_worse + count_better) / comparison.shape[0]
-            incomparable_rate = incomparable / comparison.shape[0]
-            comparable_rate_list.append(comparable_rate)
-            tie_rate_list.append(count_tie)
-            not_equal_rate_list.append(count_worse + count_better)
-            incomparable_rate_list.append(incomparable)
+        ## save comparison results of ConservativeComparison to files
+        writer = pd.ExcelWriter(result_folder + '/ConservativeComparison_' + Traffic + '.xlsx', engine='xlsxwriter')
+        df_compare_record.to_excel(writer, sheet_name='Sheet1')
+        writer.save()
+        df_compare_record = df_compare_record.drop(index=df_compare_record.index)
 
 
-            for i in range(len(tie_rate_list)):
-                print("tie:", tie_rate_list[i])
-            for i in range(len(not_equal_rate_list)):
-                print("not_equal:", not_equal_rate_list[i])
-            for i in range(len(incomparable_rate_list)):
-                print("incomparable:", incomparable_rate_list[i])
-
-            print("alpha:", alpha, np.mean(comparable_rate_list))
+        # ## To calculate the distinguishable rate of ConservativeComparison under different percentages of considered test scenarios
+        # # alpha_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        # alpha = 1 ## Percentage of considered test scenarios
+        #
+        # comparison_list = np.loadtxt(result_name)
+        # comparison = np.array(comparison_list)
+        #
+        # ## save comparison results of ConservativeComparison to files
+        # comparison_times = []
+        # for i in range(1, 61):
+        #     comparison_times.append(61 - i)
+        # axis = []
+        # for i in range(1, 1831):
+        #     compared = 0
+        #     for j in range(len(comparison_times)):
+        #         compared += comparison_times[j]
+        #         if i > compared:
+        #             pass
+        #         else:
+        #             pre_index = j + 1
+        #             next_index = i - (compared - comparison_times[j]) + pre_index
+        #             axis.append([pre_index, next_index])
+        #             break
+        #
+        # for i in range(comparison.shape[0]):
+        #     current_comparison = comparison[i][0:num_scenarios]
+        #
+        #     Configuration_A = configuration_list[axis[i][0] - 1] ## get the previous configuration
+        #     Configuration_B = configuration_list[axis[i][1] - 1] ## get the next configuration
+        #
+        #     if np.sum(current_comparison == 0) >= alpha * num_scenarios:
+        #         df_compare_record = df_compare_record.append(
+        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "A=B"},
+        #             ignore_index=True)
+        #     elif (np.sum(current_comparison == 1) + np.sum(current_comparison == 0)) >= alpha * num_scenarios:
+        #         df_compare_record = df_compare_record.append(
+        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "A<B"},
+        #             ignore_index=True)
+        #     elif (np.sum(current_comparison == 2) + np.sum(current_comparison == 0)) >= alpha * num_scenarios:
+        #         df_compare_record = df_compare_record.append(
+        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "A>B"},
+        #             ignore_index=True)
+        #     else:
+        #         df_compare_record = df_compare_record.append(
+        #             {'Configuration A': Configuration_A, 'Configuration B': Configuration_B, 'Comparison Results': "incomparable"},
+        #             ignore_index=True)
+        #
+        #
+        # result_folder = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/Results_ConservativeComparison/Test'
+        # if not os.path.exists(result_folder):
+        #     os.mkdir(result_folder)
+        #
+        # writer = pd.ExcelWriter(result_folder + '/ConservativeComparison_' + Traffic + '.xlsx', engine='xlsxwriter')
+        #
+        # df_compare_record.to_excel(writer, sheet_name='Sheet1')
+        # writer.save()
+        # df_compare_record = df_compare_record.drop(index=df_compare_record.index)
