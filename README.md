@@ -1,4 +1,7 @@
 # Hierarchical Safety Assessment (HSA)
+
+## Summary of Artifact
+
 Autonomous Driving Systems (ADSs) are complex systems that must satisfy multiple safety requirements. In particular cases, all the requirements cannot be satisfied at the same time, and the control software of the ADS must make trade-offs among their satisfaction. Usually, the trading-offs in the ADS decision-making process are configurable; different ADS configurations can affect driving behaviors, satisfying or violating requirements at different degrees. Therefore, it is highly important to know whether an ADS configuration can guarantee a safe drive or not. We propose *Hierarchical Safety Assessment* (HSA) to quantitatively analyze violation severity of safety requirements and distinguish safer ADS configurations based on the requirements violations comparison done in a hierarchical way by following requirements importance.
 
 Specifically:
@@ -9,7 +12,7 @@ Specifically:
   - it applies a hierarchical comparison technique, *Requirements Violation Comparison* (RVC) that, given two ADS configurations *c* and *c'*, tries to establish which one is safer. It does so by comparing the RVA results of all the tests of *c* and *c'*;
   - finally, given the results of all the pairwise comparisons, it ranks the ADS configurations from the perspective of violations of the safety requirements.
 
-In the following, we describe the structure of the repository.
+## Description of Artifact
 
 ## Appendix.pdf
 This file contains the evaluation functions of all seven requirements descripted in the paper, i.e., Vehicle Stability, Safe Distance, Compliance, and Smoothness, and the proof of the transitivity of Requirements Violation Comparison.
